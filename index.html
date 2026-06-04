@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Searzo — AI Search Visibility for Marketing Agencies</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161d;
+    --white: #eeecea;
+    --gray: #8a8784;
+    --blue: #3b6ef5;
+    --blue-light: #6b93ff;
+    --blue-pale: rgba(59,110,245,0.08);
+    --line: rgba(238,236,234,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 24px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .logo span { color: var(--blue-light); }
+
+  nav a.cta-nav {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid rgba(238,236,234,0.2);
+    padding: 11px 26px;
+    transition: all 0.3s ease;
+    font-weight: 400;
+  }
+
+  nav a.cta-nav:hover {
+    border-color: var(--blue-light);
+    color: var(--blue-light);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    padding: 160px 64px 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,110,245,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,110,245,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%;
+    right: 10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(59,110,245,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    opacity: 0;
+    transform: translateY(28px);
+    animation: fadeUp 0.9s ease forwards 0.2s;
+  }
+
+  .hero-tag {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--blue-light);
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 36px;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--blue-light);
+  }
+
+  .hero-desc {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--gray);
+    max-width: 580px;
+    margin-bottom: 56px;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--blue);
+    color: var(--white);
+    text-decoration: none;
+    padding: 16px 36px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-cta:hover { background: var(--blue-light); }
+
+  .hero-platforms {
+    position: relative;
+    z-index: 2;
+    margin-top: 80px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .platforms-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .platform-pill {
+    border: 1px solid var(--line);
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--gray);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.3s ease;
+  }
+
+  .platform-pill:hover {
+    border-color: var(--blue-light);
+    color: var(--blue-light);
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 0 64px;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 120px 64px;
+  }
+
+  .section-tag {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--blue-light);
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(36px, 4vw, 58px);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+  }
+
+  h2 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--blue-light);
+  }
+
+  .section-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--gray);
+    max-width: 520px;
+  }
+
+  /* PROBLEM */
+  .problem-section {
+    padding: 120px 64px;
+    background: var(--bg2);
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 64px;
+  }
+
+  .problem-card {
+    padding: 52px 48px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .problem-card:hover { border-color: rgba(59,110,245,0.3); }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--blue), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .problem-card:hover::before { opacity: 1; }
+
+  .problem-num {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 900;
+    color: rgba(59,110,245,0.1);
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+
+  .problem-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+
+  .problem-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--gray);
+  }
+
+  /* HOW */
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-top: 64px;
+  }
+
+  .how-steps { display: flex; flex-direction: column; gap: 0; }
+
+  .how-step {
+    padding: 36px 0;
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 24px;
+    align-items: start;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .how-step:hover .how-step-num { color: var(--blue-light); }
+
+  .how-step-num {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-weight: 900;
+    color: rgba(59,110,245,0.4);
+    letter-spacing: 0.1em;
+    padding-top: 3px;
+    transition: color 0.3s ease;
+  }
+
+  .how-step-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+
+  .how-step-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--gray);
+  }
+
+  .how-visual {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    padding: 48px 40px;
+    position: sticky;
+    top: 100px;
+  }
+
+  .how-visual-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 32px;
+  }
+
+  .citation-example {
+    margin-bottom: 24px;
+  }
+
+  .citation-query {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--line);
+    font-style: italic;
+  }
+
+  .citation-result {
+    padding: 14px 16px;
+    background: rgba(59,110,245,0.06);
+    border: 1px solid rgba(59,110,245,0.2);
+    font-size: 13px;
+    color: var(--white);
+    line-height: 1.5;
+  }
+
+  .citation-result strong { color: var(--blue-light); }
+
+  .citation-bar {
+    margin-top: 32px;
+  }
+
+  .citation-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .citation-bar-track {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .citation-bar-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 2px;
+    transition: width 1.5s ease;
+  }
+
+  /* METRICS */
+  .metrics-section {
+    padding: 120px 64px;
+    background: var(--blue);
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+  }
+
+  .metric-box {
+    padding: 48px 36px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .metric-box:hover { background: rgba(255,255,255,0.1); }
+
+  .metric-num {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .metric-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+  }
+
+  .metrics-section .section-tag { color: rgba(255,255,255,0.5); }
+  .metrics-section .section-tag::before { background: rgba(255,255,255,0.5); }
+  .metrics-section h2 { color: var(--white); }
+  .metrics-section h2 em { color: rgba(255,255,255,0.4); }
+  .metrics-section .section-desc { color: rgba(255,255,255,0.6); }
+
+  /* CTA */
+  .cta-section {
+    padding: 120px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(59,110,245,0.08) 0%, transparent 70%);
+  }
+
+  .cta-section h2 {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-section p {
+    font-size: 16px;
+    color: var(--gray);
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-email {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid rgba(238,236,234,0.25);
+    padding: 18px 48px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    font-weight: 500;
+  }
+
+  .cta-email:hover {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 36px 64px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .footer-logo span { color: var(--blue-light); }
+
+  .footer-copy {
+    font-size: 13px;
+    color: var(--gray);
+  }
+
+  .footer-email {
+    font-size: 13px;
+    color: var(--blue-light);
+    text-decoration: none;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .hero { padding: 120px 24px 80px; }
+    .section { padding: 80px 24px; }
+    .divider { margin: 0 24px; }
+    .problem-section { padding: 80px 24px; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .how-grid { grid-template-columns: 1fr; gap: 48px; }
+    .how-visual { position: static; }
+    .metrics-section { padding: 80px 24px; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .cta-section { padding: 80px 24px; }
+    footer { padding: 28px 24px; flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">Sear<span>zo</span></a>
+  <a href="mailto:team@searzo.com" class="cta-nav">Get in Touch</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-tag">AI Search Visibility</div>
+    <h1>Your Clients'<br>Brands, <em>Visible</em><br>Where AI Searches.</h1>
+    <p class="hero-desc">When someone asks ChatGPT or Perplexity for a recommendation, your clients' brands need to be part of the answer. We make that happen — and we do it through your agency.</p>
+    <a href="mailto:team@searzo.com" class="hero-cta">
+      Work With Us →
+    </a>
+  </div>
+  <div class="hero-platforms">
+    <span class="platforms-label">Optimized for</span>
+    <span class="platform-pill">ChatGPT</span>
+    <span class="platform-pill">Perplexity</span>
+    <span class="platform-pill">Google AI</span>
+    <span class="platform-pill">Gemini</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="problem-section">
+  <div class="section-tag">The Problem</div>
+  <h2>Search Has Changed.<br>Most Brands <em>Haven't.</em></h2>
+  <p class="section-desc">AI-powered search is now how people discover and validate businesses. The old SEO playbook does not apply — and most agencies are not yet equipped to address it.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card fade-up">
+      <div class="problem-num">01</div>
+      <div class="problem-title">AI Answers Without Links</div>
+      <p class="problem-text">ChatGPT and Perplexity give direct answers — not a list of links. If your client's brand is not cited in those answers, it simply does not exist in the conversation.</p>
+    </div>
+    <div class="problem-card fade-up">
+      <div class="problem-num">02</div>
+      <div class="problem-title">Traditional SEO Is Not Enough</div>
+      <p class="problem-text">Ranking on Google page one no longer guarantees visibility in AI search. Only 12% of URLs cited by AI tools overlap with traditional top-10 results. It is a different game entirely.</p>
+    </div>
+    <div class="problem-card fade-up">
+      <div class="problem-num">03</div>
+      <div class="problem-title">The Window Is Open Now</div>
+      <p class="problem-text">Most competitors have not optimized for AI search yet. The agencies that move first will establish visibility for their clients before the market catches up. That window will not stay open.</p>
+    </div>
+    <div class="problem-card fade-up">
+      <div class="problem-num">04</div>
+      <div class="problem-title">Agencies Need a Specialist</div>
+      <p class="problem-text">AI search optimization requires a different skillset than traditional SEO. Rather than building it in-house, the smartest agencies partner with specialists — and deliver the results under their own brand.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section">
+  <div class="section-tag">How It Works</div>
+  <h2>White-Label AI Visibility<br><em>For Your Agency</em></h2>
+  <p class="section-desc">We operate as your behind-the-scenes partner. Your clients see your brand. We handle the technical work.</p>
+
+  <div class="how-grid">
+    <div class="how-steps fade-up">
+      <div class="how-step">
+        <div class="how-step-num">01</div>
+        <div>
+          <div class="how-step-title">AI Visibility Audit</div>
+          <p class="how-step-text">We run your client's brand through hundreds of relevant queries across ChatGPT, Perplexity, and Google AI — establishing a baseline citation rate and identifying gaps against competitors.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">02</div>
+        <div>
+          <div class="how-step-title">Content Optimization</div>
+          <p class="how-step-text">We restructure website content, implement schema markup, and rewrite key pages to make them extractable and citable by large language models.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">03</div>
+        <div>
+          <div class="how-step-title">Authority Distribution</div>
+          <p class="how-step-text">We build the brand's presence on platforms AI models trust — industry publications, Q&A platforms, and community spaces where AI systems source their answers.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">04</div>
+        <div>
+          <div class="how-step-title">Monthly Monitoring</div>
+          <p class="how-step-text">We track citation rate changes month over month and deliver clear reports showing progress — ready for your agency to present to clients under your own branding.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-visual fade-up">
+      <div class="how-visual-label">Citation Rate Example</div>
+      <div class="citation-example">
+        <div class="citation-query">"What accounting software should I use for my startup?"</div>
+        <div class="citation-result">Based on several sources, <strong>[Your Client]</strong> is frequently recommended for early-stage startups due to its...</div>
+      </div>
+      <div class="citation-bar">
+        <div class="citation-bar-label">
+          <span>Before optimization</span>
+          <span>6%</span>
+        </div>
+        <div class="citation-bar-track">
+          <div class="citation-bar-fill" style="width: 6%"></div>
+        </div>
+        <div class="citation-bar-label">
+          <span>After 3 months</span>
+          <span>24%</span>
+        </div>
+        <div class="citation-bar-track">
+          <div class="citation-bar-fill" style="width: 24%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="metrics-section">
+  <div class="section-tag">Why It Works</div>
+  <h2>The Numbers Behind<br><em>AI Search</em></h2>
+  <p class="section-desc">The shift to AI-powered search is already happening. These are not projections — they are the current state of how people find and choose businesses.</p>
+
+  <div class="metrics-grid">
+    <div class="metric-box fade-up">
+      <div class="metric-num">88%</div>
+      <div class="metric-label">of AI citations come from sources not in Google's top 10</div>
+    </div>
+    <div class="metric-box fade-up">
+      <div class="metric-num">500</div>
+      <div class="metric-label">estimated brands optimized for AI search in any given niche</div>
+    </div>
+    <div class="metric-box fade-up">
+      <div class="metric-num">4×</div>
+      <div class="metric-label">higher click-through rate for brands cited in AI answers</div>
+    </div>
+    <div class="metric-box fade-up">
+      <div class="metric-num">18mo</div>
+      <div class="metric-label">estimated window before AI search optimization becomes standard</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="section-tag" style="justify-content:center; margin-bottom:24px;">
+    <span style="display:block; width:32px; height:1px; background:var(--blue-light);"></span>
+    Partner With Us
+    <span style="display:block; width:32px; height:1px; background:var(--blue-light);"></span>
+  </div>
+  <h2>Add AI Search Visibility<br>to Your Agency's <em>Offering</em></h2>
+  <p>Tell us about your agency and your clients. We'll show you exactly what their AI search visibility looks like today.</p>
+  <a href="mailto:team@searzo.com" class="cta-email">team@searzo.com</a>
+</section>
+
+<footer>
+  <a href="#" class="footer-logo">Sear<span>zo</span></a>
+  <span class="footer-copy">© 2026 Searzo. All rights reserved.</span>
+  <a href="mailto:team@searzo.com" class="footer-email">team@searzo.com</a>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 100);
+        const fills = entry.target.querySelectorAll('.citation-bar-fill');
+        fills.forEach(fill => {
+          const width = fill.style.width;
+          fill.style.width = '0%';
+          setTimeout(() => fill.style.width = width, 300);
+        });
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
