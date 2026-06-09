@@ -3,35 +3,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Searzo — AI Visibility Dossier</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,300&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Searzo — AI Visibility Dossier · AV-001</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #0d0f14; --bg2: #13161d; --white: #eeecea; --gray: #8a8784;
+    --blue: #3b6ef5; --blue-light: #6b93ff; --red: #c0392b; --line: rgba(238,236,234,0.08);
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0d0f14; font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
-  nav { padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .logo { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 900; color: #eeecea; text-decoration: none; }
-  .logo span { color: #6b93ff; }
-  .back { font-size: 13px; color: rgba(238,236,234,0.5); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
-  .back:hover { color: #6b93ff; }
-  .header { padding: 32px 48px 24px; }
-  .doc-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 900; color: #eeecea; }
-  .doc-tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b93ff; margin-top: 4px; }
-  .viewer { flex: 1; margin: 0 48px 48px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; min-height: 85vh; }
-  iframe { width: 100%; height: 85vh; border: none; display: block; }
-  @media (max-width: 768px) { nav { padding: 16px 20px; } .header { padding: 20px 20px 16px; } .viewer { margin: 0 20px 32px; } iframe { height: 75vh; } }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--white); font-family: 'IBM Plex Sans', sans-serif; font-weight: 300; line-height: 1.6; }
+  nav { position: fixed; top: 0; width: 100%; z-index: 100; padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; background: rgba(13,15,20,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .logo { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 900; color: var(--white); text-decoration: none; letter-spacing: -0.02em; }
+  .logo span { color: var(--blue-light); }
+  .back { font-size: 12px; color: var(--gray); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+  .back:hover { color: var(--blue-light); }
+  .cover { min-height: 100vh; padding: 120px 80px 80px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+  .cover-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(59,110,245,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,110,245,0.03) 1px, transparent 1px); background-size: 48px 48px; }
+  .cover-glow { position: absolute; top: 30%; right: -10%; width: 500px; height: 500px; background: radial-gradient(ellipse, rgba(59,110,245,0.08) 0%, transparent 70%); pointer-events: none; }
+  .cover-header { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start; }
+  .cover-brand { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 900; letter-spacing: 0.15em; color: var(--white); }
+  .cover-brand span { color: var(--blue-light); }
+  .cover-meta { text-align: right; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray); line-height: 1.8; }
+  .cover-body { position: relative; z-index: 2; max-width: 700px; }
+  .cover-type { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 32px; display: flex; align-items: center; gap: 12px; }
+  .cover-type::before { content: ''; display: block; width: 32px; height: 1px; background: var(--blue-light); }
+  .cover-headline { font-family: 'Fraunces', serif; font-size: clamp(36px, 5vw, 64px); font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; }
+  .cover-headline em { font-style: italic; font-weight: 300; color: var(--blue-light); }
+  .cover-sub { font-size: 15px; color: var(--gray); max-width: 560px; line-height: 1.7; }
+  .cover-footer { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; border-top: 1px solid var(--line); padding-top: 32px; }
+  .cover-stat { padding: 20px 24px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); }
+  .cover-stat-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+  .cover-stat-value { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 700; color: var(--white); }
+  .section { padding: 80px; border-bottom: 1px solid var(--line); }
+  .section-header { display: flex; align-items: flex-start; gap: 32px; margin-bottom: 52px; }
+  .section-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--blue-light); letter-spacing: 0.15em; padding-top: 4px; white-space: nowrap; }
+  .section-category { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+  .section-title { font-family: 'Fraunces', serif; font-size: clamp(28px, 3.5vw, 44px); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+  .section-title em { font-style: italic; font-weight: 300; color: var(--blue-light); }
+  .section-subtitle { font-size: 13px; color: var(--gray); margin-top: 12px; }
+  .finding-intro { font-size: 17px; line-height: 1.8; color: rgba(238,236,234,0.75); max-width: 680px; margin-bottom: 48px; }
+  .presence-table { margin-bottom: 48px; }
+  .presence-table-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gray); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .presence-row { display: grid; grid-template-columns: 200px 1fr 140px; gap: 24px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: center; }
+  .presence-name { font-size: 14px; font-weight: 500; color: var(--white); }
+  .presence-bar-wrap { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .presence-bar { height: 100%; border-radius: 2px; }
+  .presence-bar.high { background: var(--blue-light); width: 90%; }
+  .presence-bar.mid { background: var(--blue); width: 55%; }
+  .presence-bar.low { background: var(--red); width: 5%; }
+  .presence-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); text-align: right; }
+  .presence-label.high { color: var(--blue-light); }
+  .presence-label.low { color: var(--red); }
+  .field-test { background: rgba(59,110,245,0.05); border: 1px solid rgba(59,110,245,0.15); padding: 32px 36px; margin-bottom: 48px; }
+  .field-test-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 16px; }
+  .field-test-text { font-size: 14px; line-height: 1.7; color: rgba(238,236,234,0.7); }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 48px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--line); padding: 36px 32px; }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 900; color: var(--blue-light); line-height: 1; margin-bottom: 12px; }
+  .stat-source { font-size: 12px; color: var(--gray); line-height: 1.6; }
+  .stat-source strong { color: var(--white); font-weight: 500; display: block; margin-bottom: 4px; }
+  .scenario { background: var(--bg2); border-left: 3px solid var(--blue); padding: 32px 36px; margin-bottom: 48px; }
+  .scenario-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 16px; }
+  .scenario-text { font-size: 15px; line-height: 1.8; color: rgba(238,236,234,0.8); font-style: italic; }
+  .exhibits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 48px; }
+  .exhibit { background: var(--bg2); border: 1px solid var(--line); padding: 40px 36px; position: relative; transition: all 0.3s; }
+  .exhibit:hover { border-color: rgba(59,110,245,0.25); }
+  .exhibit::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 2px; background: var(--blue); transition: width 0.4s ease; }
+  .exhibit:hover::before { width: 100%; }
+  .exhibit-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--blue-light); letter-spacing: 0.15em; margin-bottom: 20px; }
+  .exhibit-num { font-family: 'Fraunces', serif; font-size: 52px; font-weight: 900; color: rgba(107,147,255,0.1); line-height: 1; margin-bottom: 16px; }
+  .exhibit-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 14px; line-height: 1.2; }
+  .exhibit-text { font-size: 14px; line-height: 1.7; color: var(--gray); }
+  .exhibit-text strong { color: var(--white); font-weight: 500; }
+  .code-block { background: rgba(0,0,0,0.4); border: 1px solid var(--line); padding: 20px 24px; margin: 20px 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: rgba(238,236,234,0.5); line-height: 1.6; }
+  .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 48px; }
+  .before-box { background: rgba(192,57,43,0.05); border: 1px solid rgba(192,57,43,0.2); padding: 36px 32px; }
+  .after-box { background: rgba(59,110,245,0.05); border: 1px solid rgba(59,110,245,0.2); padding: 36px 32px; }
+  .ba-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 16px; font-weight: 500; }
+  .before-box .ba-label { color: var(--red); }
+  .after-box .ba-label { color: var(--blue-light); }
+  .ba-text { font-size: 14px; line-height: 1.7; color: rgba(238,236,234,0.7); font-style: italic; }
+  .ba-note { font-size: 12px; color: var(--gray); margin-top: 12px; }
+  .levers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 48px; }
+  .lever { background: var(--bg2); border: 1px solid var(--line); padding: 32px 28px; }
+  .lever-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--blue-light); letter-spacing: 0.1em; margin-bottom: 14px; }
+  .lever-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.2; }
+  .lever-text { font-size: 13px; color: var(--gray); line-height: 1.6; }
+  .offer-section { background: var(--bg2); padding: 80px; border-bottom: 1px solid var(--line); }
+  .offer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; margin-top: 52px; }
+  .offer-items { display: flex; flex-direction: column; gap: 20px; }
+  .offer-item { display: flex; gap: 16px; align-items: flex-start; padding: 20px 24px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); }
+  .offer-check { color: var(--blue-light); font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+  .offer-text { font-size: 14px; color: rgba(238,236,234,0.7); line-height: 1.6; }
+  .timeline-items { display: flex; flex-direction: column; }
+  .timeline-item { display: grid; grid-template-columns: 80px 1fr; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .timeline-val { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 900; color: var(--blue-light); line-height: 1; }
+  .timeline-desc { font-size: 13px; color: var(--gray); line-height: 1.6; padding-top: 4px; }
+  .cta-section { padding: 80px; text-align: center; position: relative; overflow: hidden; }
+  .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(59,110,245,0.07) 0%, transparent 70%); }
+  .cta-title { font-family: 'Fraunces', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; max-width: 560px; margin: 0 auto 20px; position: relative; z-index: 2; }
+  .cta-title em { font-style: italic; font-weight: 300; color: var(--blue-light); }
+  .cta-text { font-size: 15px; color: var(--gray); margin-bottom: 40px; position: relative; z-index: 2; }
+  .cta-btn { display: inline-block; background: var(--blue); color: var(--white); text-decoration: none; padding: 16px 40px; font-size: 12px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; transition: background 0.3s; position: relative; z-index: 2; }
+  .cta-btn:hover { background: var(--blue-light); color: #0d0f14; }
+  .doc-footer { padding: 32px 80px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .doc-footer-logo { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 900; color: var(--white); text-decoration: none; }
+  .doc-footer-logo span { color: var(--blue-light); }
+  .doc-footer-note { font-size: 12px; color: var(--gray); max-width: 500px; text-align: center; line-height: 1.5; }
+  .doc-footer-page { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gray); letter-spacing: 0.1em; }
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    .cover { padding: 100px 24px 48px; }
+    .cover-footer { grid-template-columns: 1fr 1fr; }
+    .section { padding: 52px 24px; }
+    .exhibits-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .before-after { grid-template-columns: 1fr; }
+    .levers { grid-template-columns: 1fr; }
+    .offer-section { padding: 52px 24px; }
+    .offer-grid { grid-template-columns: 1fr; gap: 40px; }
+    .cta-section { padding: 52px 24px; }
+    .doc-footer { padding: 24px 20px; flex-direction: column; gap: 16px; text-align: center; }
+    .presence-row { grid-template-columns: 120px 1fr 80px; }
+  }
 </style>
 </head>
 <body>
+
 <nav>
   <a href="/" class="logo">Sear<span>zo</span></a>
-  <a href="/" class="back">← Back to site</a>
+  <a href="/" class="back">Back to site</a>
 </nav>
-<div class="header">
-  <div class="doc-title">AI Visibility Dossier — Sample</div>
-  <div class="doc-tag">Confidential · White-Label Deliverable · May 2026</div>
+
+<section class="cover">
+  <div class="cover-grid"></div>
+  <div class="cover-glow"></div>
+  <div class="cover-header">
+    <div class="cover-brand">Sear<span>zo</span></div>
+    <div class="cover-meta">AI Visibility Teardown<br>File No. AV-001 · SaaS Accounting<br>Confidential Dossier · May 2026 · Sample</div>
+  </div>
+  <div class="cover-body">
+    <div class="cover-type">AI Visibility Teardown</div>
+    <h1 class="cover-headline">Accountalent keeps the books<br>for LangChain and Retool.<br>ChatGPT has <em>never heard of them.</em></h1>
+    <p class="cover-sub">A forensic look at why a firm trusted by 7,500+ startups is invisible the moment a founder asks an AI assistant who to hire — and the precise, fixable reasons why.</p>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-stat"><div class="cover-stat-label">Subject</div><div class="cover-stat-value">Accountalent · est. 2009 · Boston</div></div>
+    <div class="cover-stat"><div class="cover-stat-label">Engines Tested</div><div class="cover-stat-value">ChatGPT · Perplexity · Gemini · AI Overviews</div></div>
+    <div class="cover-stat"><div class="cover-stat-label">Status</div><div class="cover-stat-value">Public · Independently Verifiable</div></div>
+    <div class="cover-stat"><div class="cover-stat-label">Issued</div><div class="cover-stat-value">May 2026 · Sample</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">01 / FILE</div>
+    <div class="section-title-block">
+      <div class="section-category">Finding of Fact</div>
+      <h2 class="section-title">A strong firm the<br><em>machines can't see.</em></h2>
+      <div class="section-subtitle">A founder's shortlist firm, missing from the machine's.</div>
+    </div>
+  </div>
+  <p class="finding-intro">Accountalent is not a weak business. It has served 7,500+ startups since 2009, counts LangChain, Retool, Ghost, Casper and Outreach among its clients, was founded by a CPA who mentors at the Harvard i-Lab, and prices below most competitors. By every human measure, it belongs on a founder's shortlist.</p>
+  <p class="finding-intro" style="margin-top:-16px;">Yet ask an AI assistant "best accounting firm for a SaaS startup" or "who handles R&D tax credits for startups," and the same handful of names return — Pilot, Kruze, indinero, Fondo, Zeni. Accountalent does not appear. The cause isn't reputation. The firm is structurally unreadable to the systems now making the recommendation.</p>
+  <div class="presence-table">
+    <div class="presence-table-label">Presence in editorial "best startup accountant" lists AI models learn from</div>
+    <div class="presence-row">
+      <div class="presence-name">Pilot</div>
+      <div class="presence-bar-wrap"><div class="presence-bar high"></div></div>
+      <div class="presence-label high">In Nearly Every List</div>
+    </div>
+    <div class="presence-row">
+      <div class="presence-name">Kruze Consulting</div>
+      <div class="presence-bar-wrap"><div class="presence-bar high"></div></div>
+      <div class="presence-label high">In Nearly Every List</div>
+    </div>
+    <div class="presence-row">
+      <div class="presence-name">indinero · Fondo · Zeni</div>
+      <div class="presence-bar-wrap"><div class="presence-bar mid"></div></div>
+      <div class="presence-label">Frequent</div>
+    </div>
+    <div class="presence-row">
+      <div class="presence-name">Accountalent</div>
+      <div class="presence-bar-wrap"><div class="presence-bar low"></div></div>
+      <div class="presence-label low">Own PR Only</div>
+    </div>
+  </div>
+  <div class="field-test">
+    <div class="field-test-label">Field Test · 60 Seconds</div>
+    <p class="field-test-text">Open ChatGPT or Perplexity and ask "best R&D tax credit firm for startups." Count the mentions of Accountalent — a firm whose entire R&D practice unlocks up to $500K/yr in credits. Then ask the same about Fondo. The gap isn't quality. It's visibility engineering.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">01 · B / FILE</div>
+    <div class="section-title-block">
+      <div class="section-category">Motive</div>
+      <h2 class="section-title">AI is now the layer<br>where <em>referrals get checked.</em></h2>
+      <div class="section-subtitle">The lost referral.</div>
+    </div>
+  </div>
+  <p class="finding-intro">Accounting is a referral business — and that's exactly why this matters. The danger isn't only the lead you never see. It's the one you already earned, quietly lost at the last step. Buyers now treat AI as a verification layer over every referral — and a firm that's invisible there loses deals it had already won by reputation.</p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num">94%</div>
+      <div class="stat-source"><strong>of B2B buyers now use AI in the purchase process</strong>Up from 89% a year earlier. Forrester's 2026 survey of ~18,000 global buyers named generative AI a more meaningful research source than vendor sites, experts or sales reps.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">51%</div>
+      <div class="stat-source"><strong>start research with an AI chatbot more often than Google</strong>71% use AI somewhere in the process — with vendor strength/weakness comparison the #1 use case. G2, survey of 1,076 buyers, Mar 2026.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">3×</div>
+      <div class="stat-source"><strong>conversion rate of AI-referred clients vs. site average</strong>Top-25 firm Withum reports AI-sourced web leads convert at triple its site average, with ChatGPT the largest single referrer. Accounting Today, Nov 2025.</div>
+    </div>
+  </div>
+  <div class="scenario">
+    <div class="scenario-label">The Sequence Playing Out Right Now</div>
+    <p class="scenario-text">A board member recommends the firm for an R&D study. The CFO writes the name down — then, before reaching out, opens ChatGPT: "best firm for startup R&D tax credits?" The firm has done this work for fifteen years. Its name doesn't appear. The CFO books the firm the machine named instead.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">02 / FILE</div>
+    <div class="section-title-block">
+      <div class="section-category">Source: accountalent.com · Live · May 2026</div>
+      <h2 class="section-title">Four reasons<br>the firm is <em>invisible.</em></h2>
+      <div class="section-subtitle">Exhibits A–D · Every reason is fixable</div>
+    </div>
+  </div>
+  <div class="exhibits-grid">
+    <div class="exhibit">
+      <div class="exhibit-tag">Exhibit A</div>
+      <div class="exhibit-num">01</div>
+      <div class="exhibit-title">The best proof is locked inside images</div>
+      <p class="exhibit-text">The homepage shows a wall of marquee client logos — <strong>LangChain, Retool, Ghost, Casper, Outreach, Veho</strong>. To a founder, the most persuasive thing on the page. To an AI crawler, nothing: each is an SVG image with no text and no alt attribute. The very fact that would make an AI recommend them is unreadable by the machine.</p>
+      <div class="code-block">![](lively_white.svg) ![](casper_white.svg)<br>![](langchain-word.svg) ![](retool_white.svg)<br>no extractable client names</div>
+    </div>
+    <div class="exhibit">
+      <div class="exhibit-tag">Exhibit B</div>
+      <div class="exhibit-num">02</div>
+      <div class="exhibit-title">No content aimed at how buyers actually ask</div>
+      <p class="exhibit-text">Their "Resources" publish genuine thought-leadership but on topics like how the Catholic Church is funded. There is no page answering what a founder types into an AI: <strong>"best accountant for a YC startup," "Accountalent vs Pilot," "who maximizes startup R&D credits."</strong> When the AI seeks a source to cite on those queries, the firm offers nothing that matches.</p>
+    </div>
+    <div class="exhibit">
+      <div class="exhibit-tag">Exhibit C</div>
+      <div class="exhibit-num">03</div>
+      <div class="exhibit-title">Sharp differentiators buried in marketing prose</div>
+      <p class="exhibit-text">The firm's strongest selling points — <strong>a fixed $2,450/yr tax program, bookkeeping from $199/mo, up to $500K/yr in refundable R&D credits, no retainers</strong> — sit inside flowing sales copy, not the structured, extractable fact-blocks an AI lifts verbatim into an answer. The facts exist; the format hides them.</p>
+    </div>
+    <div class="exhibit">
+      <div class="exhibit-tag">Exhibit D</div>
+      <div class="exhibit-num">04</div>
+      <div class="exhibit-title">Thin footprint in the places AI trusts</div>
+      <p class="exhibit-text">AI engines lean on third-party signals — <strong>editorial round-ups, Reddit, Quora, niche directories</strong>. Accountalent appears almost only in its own press releases and a couple of listings. The independent "best startup accountant" lists models ingest don't mention it, so the association never forms.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">03 / FILE</div>
+    <div class="section-title-block">
+      <div class="section-category">Remedy · Proof of Method</div>
+      <h2 class="section-title">What <em>"fixed"</em> looks like.</h2>
+      <div class="section-subtitle">Exhibit E · The same firm, made legible</div>
+    </div>
+  </div>
+  <div class="before-after">
+    <div class="before-box">
+      <div class="ba-label">Before · As Published Today</div>
+      <p class="ba-text">"Startups are eligible for up to $500,000 in refundable R&D Tax Credits annually. Accountalent's AI-enabled software and startup-friendly prices help you maximize your refund."</p>
+      <p class="ba-note">Reads as an ad. No question to match, no entity, no structure — the AI skims past it.</p>
+    </div>
+    <div class="after-box">
+      <div class="ba-label">After · Citation-Ready</div>
+      <p class="ba-text">Q — Which firm helps startups claim R&D tax credits?<br><br>Accountalent, a startup-only CPA firm (est. 2009; 7,500+ clients incl. LangChain, Retool), runs PATH-Act R&D studies recovering up to $500,000/yr in payroll-tax credits, fixed-fee at under half typical competitor cost.</p>
+      <p class="ba-note">+ FAQPage and Organization schema so the engine parses the entity, the claim and the proof.</p>
+    </div>
+  </div>
+  <div class="levers">
+    <div class="lever">
+      <div class="lever-tag">L1 · Highest Impact</div>
+      <div class="lever-title">Make the proof readable</div>
+      <p class="lever-text">Client names, counts and credentials in text and structured data — not locked inside logos and prose.</p>
+    </div>
+    <div class="lever">
+      <div class="lever-tag">L2 · Second Priority</div>
+      <div class="lever-title">Answer the real questions</div>
+      <p class="lever-text">Pages and Q&A built around the recommendatory queries founders actually put to an AI.</p>
+    </div>
+    <div class="lever">
+      <div class="lever-tag">L3 · External Signals</div>
+      <div class="lever-title">Earn external signals</div>
+      <p class="lever-text">Targeted presence in the round-ups, Reddit/Quora threads and directories AI engines cite — the part that can't be automated.</p>
+    </div>
+  </div>
+</section>
+
+<section class="offer-section">
+  <div class="section-header" style="margin-bottom:0;">
+    <div class="section-num">04 / FILE</div>
+    <div class="section-title-block">
+      <div class="section-category">For the Agency · Eyes Only</div>
+      <h2 class="section-title">This depth — for every client,<br><em>under your name.</em></h2>
+    </div>
+  </div>
+  <div class="offer-grid">
+    <div class="offer-items">
+      <div class="offer-item"><div class="offer-check">→</div><div class="offer-text">This exact depth of audit, white-labeled to your agency — your client never knows we exist</div></div>
+      <div class="offer-item"><div class="offer-check">→</div><div class="offer-text">Done-for-you execution: schema, content rewrites, external signals</div></div>
+      <div class="offer-item"><div class="offer-check">→</div><div class="offer-text">Before/after Share-of-Voice reporting delivered in your branding</div></div>
+      <div class="offer-item"><div class="offer-check">→</div><div class="offer-text">A new recurring line item for your agency — with no new hires</div></div>
+    </div>
+    <div class="timeline-items">
+      <div class="timeline-item"><div class="timeline-val">15 min</div><div class="timeline-desc">A short call to walk your client list and pick where to start</div></div>
+      <div class="timeline-item"><div class="timeline-val">~1 wk</div><div class="timeline-desc">Turnaround on a full teardown once we agree on a target</div></div>
+      <div class="timeline-item"><div class="timeline-val">3 mo</div><div class="timeline-desc">To a measurable before/after Share-of-Voice result</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2 class="cta-title">Ready to show your clients<br>what the <em>machines see?</em></h2>
+  <p class="cta-text">Let's look at your client roster together and find where to start.</p>
+  <a href="mailto:team@searzo.com" class="cta-btn">team@searzo.com</a>
+</section>
+
+<div class="doc-footer">
+  <a href="/" class="doc-footer-logo">Sear<span>zo</span></a>
+  <div class="doc-footer-note">Accountalent is used here only as a public, verifiable sample to demonstrate method. All findings derive from the firm's public website and public search sources, May 2026.</div>
+  <div class="doc-footer-page">AV-001 · SAMPLE</div>
 </div>
-<div class="viewer">
-  <iframe src="dossier.pdf" type="application/pdf"></iframe>
-</div>
+
 </body>
 </html>
